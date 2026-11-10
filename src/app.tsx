@@ -12,6 +12,25 @@ export function createApp(config: RigConfig = loadConfig()) {
 
   app.get('/health', (c) => c.json({ ok: true, lane: lane().id }));
 
+  app.get('/api/digest/:night', (c) => {
+    const night = c.req.param('night');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(night)) return c.notFound();
+
+    try {
+      return c.json(readNight(config.runsDir, night).rows);
+    } catch (error) {
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'code' in error &&
+        error.code === 'ENOENT'
+      ) {
+        return c.notFound();
+      }
+      throw error;
+    }
+  });
+
   app.get('/', (c) =>
     c.html(
       <Layout title="status" lane={lane()}>
