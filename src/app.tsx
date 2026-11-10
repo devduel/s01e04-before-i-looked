@@ -17,7 +17,9 @@ export function createApp(config: RigConfig = loadConfig()) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(night)) return c.notFound();
 
     try {
-      return c.json(readNight(config.runsDir, night).rows);
+      const digest = readNight(config.runsDir, night);
+      const rows = [...digest.rows].sort((left, right) => left.job.localeCompare(right.job));
+      return c.json({ ...digest, rows });
     } catch (error) {
       if (
         typeof error === 'object' &&
