@@ -77,3 +77,14 @@ page again with `LANE_MARKER` unset (the banner reads "no marker set") and uploa
 link. Move this plan to `docs/plans/done/` with its issue list.
 
 Done when: the preview link no longer shows the lane marker.
+
+## Issues
+
+- [#1 Digest row types and reader contract](https://github.com/devduel/s01e04-before-i-looked/issues/1)
+- [#2 Link night digests from the status board](https://github.com/devduel/s01e04-before-i-looked/issues/2)
+- [#3 Render the digest page](https://github.com/devduel/s01e04-before-i-looked/issues/3)
+- [#4 Test digest routes](https://github.com/devduel/s01e04-before-i-looked/issues/4)
+- [#5 Serve the digest JSON route](https://github.com/devduel/s01e04-before-i-looked/issues/5)
+- [#6 Read and aggregate a night's run log](https://github.com/devduel/s01e04-before-i-looked/issues/6)
+- [#7 Publish and send the digest preview](https://github.com/devduel/s01e04-before-i-looked/issues/7)
+- [#8 Remove the lane marker and finish the plan](https://github.com/devduel/s01e04-before-i-looked/issues/8)
