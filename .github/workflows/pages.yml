@@ -1,0 +1,83 @@
+name: Publish digest preview
+
+on:
+  workflow_dispatch:
+    inputs:
+      include_marker:
+        description: Include the lane marker in the preview
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: corepack pnpm install --lockfile=false
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Render the digest as one HTML file
+        env:
+          INCLUDE_MARKER: ${{ inputs.include_marker }}
+        run: |
+          export LANE_ID=lane-07
+          export PORT=8787
+          if [[ "$INCLUDE_MARKER" == "true" ]]; then
+            export LANE_MARKER=3aom-4rft
+          else
+            unset LANE_MARKER
+          fi
+
+          corepack pnpm start >"$RUNNER_TEMP/rig.log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8787/digest/2026-10-28 >/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+
+          mkdir -p site
+          curl --fail --silent --show-error http://127.0.0.1:8787/digest/2026-10-28 -o site/index.html
+          test -s site/index.html
+
+          if [[ "$INCLUDE_MARKER" == "true" ]]; then
+            grep -q '3aom-4rft' site/index.html
+          else
+            grep -q 'no marker set' site/index.html
+            ! grep -q '3aom-4rft' site/index.html
+          fi
+
+      - name: Upload the Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
